@@ -1,0 +1,51 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}我的群组 · 费用分摊{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">我的群组</h4>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-group-modal">创建群组</button>
+</div>
+
+<div class="row g-3" id="group-grid"></div>
+
+<div class="card text-center text-muted py-5 d-none" id="group-empty">
+  <div class="card-body">
+    <h6 class="mb-2">还没有任何群组</h6>
+    <p class="small mb-0">点击右上角「创建群组」开始一笔 AA 吧。</p>
+  </div>
+</div>
+
+<div class="modal fade" id="create-group-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="create-group-form">
+        <div class="modal-header">
+          <h5 class="modal-title">创建群组</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="group-name">群组名称</label>
+            <input class="form-control" id="group-name" maxlength="100" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="group-description">描述（可选）</label>
+            <textarea class="form-control" id="group-description" rows="2" maxlength="500"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="submit" class="btn btn-primary">创建</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/groups.js' %}"></script>
+{% endblock %}

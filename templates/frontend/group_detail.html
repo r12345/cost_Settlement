@@ -1,0 +1,225 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}群组详情 · 费用分摊{% endblock %}
+
+{% block content %}
+<div id="group-detail" data-group-id="{{ group_id }}">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0" id="group-name">加载中…</h4>
+      <div class="text-muted small"><span id="group-member-count">0</span> 位成员</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-primary btn-sm" href="/groups/{{ group_id }}/ai/">AI 记账</a>
+      <a class="btn btn-outline-secondary btn-sm" href="/groups/">返回列表</a>
+      <button class="btn btn-outline-danger btn-sm" id="leave-group">退出群组</button>
+    </div>
+  </div>
+
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-expenses" type="button" role="tab">支出</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-balances" type="button" role="tab">余额</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-settlements" type="button" role="tab">结算</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ai-query" type="button" role="tab">AI 问答</button>
+    </li>
+  </ul>
+
+  <div class="tab-content bg-white border border-top-0 p-3">
+
+    <div class="tab-pane fade show active" id="tab-expenses" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="text-muted mb-0">支出记录</h6>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#expense-modal">记一笔</button>
+      </div>
+      <table class="table table-sm table-hover align-middle mb-2">
+        <thead class="table-light">
+          <tr>
+            <th>日期</th>
+            <th>付款人</th>
+            <th class="text-end">金额（元）</th>
+            <th>分摊方式</th>
+            <th>备注</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="expense-rows"></tbody>
+      </table>
+      <div class="text-muted small d-none" id="expense-empty">还没有支出记录，点「记一笔」开始。</div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-balances" role="tabpanel">
+      <div class="alert alert-secondary" id="my-balance">加载中…</div>
+
+      <h6 class="text-muted">成员净余额</h6>
+      <table class="table table-sm mb-4">
+        <thead class="table-light">
+          <tr><th>成员</th><th>角色</th><th class="text-end">净余额（元）</th></tr>
+        </thead>
+        <tbody id="balance-rows"></tbody>
+      </table>
+
+      <h6 class="text-muted">两两明细（当前用户视角）</h6>
+      <table class="table table-sm mb-2">
+        <thead class="table-light">
+          <tr>
+            <th>成员</th>
+            <th class="text-end">对方欠我（元）</th>
+            <th class="text-end">我欠对方（元）</th>
+          </tr>
+        </thead>
+        <tbody id="relationship-rows"></tbody>
+      </table>
+      <div class="text-muted small d-none" id="relationship-empty">当前没有两两欠款。</div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-settlements" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="text-muted mb-0">转账建议</h6>
+        <button class="btn btn-primary btn-sm" id="load-suggestions">生成结算建议</button>
+      </div>
+
+      <div class="alert alert-success d-none" id="settle-alert">所有账目已结清</div>
+      <div class="row g-2 mb-4" id="suggestion-list"></div>
+
+      <h6 class="text-muted">结算历史</h6>
+      <table class="table table-sm mb-2">
+        <thead class="table-light">
+          <tr><th>转出 → 接收</th><th class="text-end">金额（元）</th><th>时间</th></tr>
+        </thead>
+        <tbody id="settlement-rows"></tbody>
+      </table>
+      <div class="text-muted small d-none" id="settlement-empty">还没有结算记录。</div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-ai-query" role="tabpanel">
+      <div class="alert alert-secondary d-none" id="ai-query-disabled">AI 问答功能未启用</div>
+
+      <div class="input-group mb-3">
+        <input class="form-control" id="ai-question" maxlength="500"
+               placeholder="例如：上个月吃火锅花了多少钱？">
+        <button class="btn btn-primary" id="ai-ask" type="button">提问</button>
+      </div>
+
+      <div class="card d-none mb-3" id="ai-answer-card">
+        <div class="card-body">
+          <div class="text-muted small mb-1">回答</div>
+          <p class="mb-0" id="ai-answer"></p>
+        </div>
+      </div>
+
+      <h6 class="text-muted">相关记录</h6>
+      <table class="table table-sm mb-2">
+        <thead class="table-light">
+          <tr>
+            <th>日期</th>
+            <th>付款人</th>
+            <th>备注</th>
+            <th class="text-end">金额（元）</th>
+          </tr>
+        </thead>
+        <tbody id="ai-sources"></tbody>
+      </table>
+      <div class="text-muted small d-none" id="ai-sources-empty">没有检索到相关记录。</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal fade" id="expense-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="expense-form">
+        <div class="modal-header">
+          <h5 class="modal-title">记一笔</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="expense-payer">付款人</label>
+              <select class="form-select" id="expense-payer" required></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="expense-amount">金额（元）</label>
+              <input class="form-control" id="expense-amount" type="number" step="0.01" min="0.01" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="expense-split-type">分摊方式</label>
+              <select class="form-select" id="expense-split-type">
+                <option value="EQUAL">等额分摊</option>
+                <option value="EXACT">精确金额</option>
+                <option value="PERCENTAGE">按百分比</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="expense-category">分类</label>
+              <select class="form-select" id="expense-category">
+                <option value="FOOD">餐饮</option>
+                <option value="TRANSPORT">交通</option>
+                <option value="ACCOMMODATION">住宿</option>
+                <option value="ENTERTAINMENT">娱乐</option>
+                <option value="OTHER" selected>其他</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">参与人</label>
+              <div class="d-flex flex-wrap gap-3" id="participant-list"></div>
+            </div>
+            <div class="col-12 d-none" id="split-inputs"></div>
+            <div class="col-12">
+              <label class="form-label" for="expense-note">备注</label>
+              <input class="form-control" id="expense-note" maxlength="255">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="expense-edit-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="expense-edit-form">
+        <div class="modal-header">
+          <h5 class="modal-title">编辑支出</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-expense-id">
+          <div class="mb-3">
+            <label class="form-label" for="edit-amount">金额（元）</label>
+            <input class="form-control" id="edit-amount" type="number" step="0.01" min="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="edit-note">备注</label>
+            <input class="form-control" id="edit-note" maxlength="255">
+          </div>
+          <div class="form-text">这里只能改金额和备注；如需修改付款人、分摊方式或参与人，请删除后重建。</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/group_detail.js' %}"></script>
+{% endblock %}

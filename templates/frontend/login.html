@@ -1,0 +1,71 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}登录 · 费用分摊{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 78vh;">
+  <div class="col-lg-5 col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="text-center mb-1">费用分摊</h4>
+        <p class="text-center text-muted small mb-4">多人记账 · 余额与结算一键搞定</p>
+
+        <ul class="nav nav-pills nav-fill mb-4" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">登录</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" role="tab">注册</button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+            <form id="login-form">
+              <div class="mb-3">
+                <label class="form-label" for="login-username">用户名</label>
+                <input class="form-control" id="login-username" autocomplete="username" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="login-password">密码</label>
+                <input class="form-control" id="login-password" type="password" autocomplete="current-password" required>
+              </div>
+              <button class="btn btn-primary w-100" type="submit">登录</button>
+            </form>
+          </div>
+
+          <div class="tab-pane fade" id="register-pane" role="tabpanel">
+            <form id="register-form">
+              <div class="mb-3">
+                <label class="form-label" for="register-username">用户名</label>
+                <input class="form-control" id="register-username" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="register-password">密码</label>
+                <input class="form-control" id="register-password" type="password" required>
+                <div class="form-text">至少 8 位，不能是纯数字或常见口令。</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="register-nickname">昵称（可选）</label>
+                <input class="form-control" id="register-nickname">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="register-email">邮箱（可选）</label>
+                <input class="form-control" id="register-email" type="email">
+              </div>
+              <button class="btn btn-success w-100" type="submit">注册并登录</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/login.js' %}"></script>
+{% endblock %}

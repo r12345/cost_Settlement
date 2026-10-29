@@ -1,0 +1,47 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}AI 记账 · 费用分摊{% endblock %}
+
+{% block content %}
+<div id="ai-page" data-group-id="{{ group_id }}">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">AI 记账</h4>
+    <a class="btn btn-outline-secondary btn-sm" href="/groups/{{ group_id }}/">返回群组</a>
+  </div>
+
+  <div class="alert alert-secondary d-none" id="ai-disabled-box">
+    AI 功能未启用，请手动记账。
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <label class="form-label" for="ai-text">用一句话描述这笔支出</label>
+      <textarea class="form-control mb-3" id="ai-text" rows="3"
+                placeholder="例如：昨天我和张三李四吃火锅，张三垫了300三人AA"></textarea>
+      <button class="btn btn-primary" id="parse-button" type="button">解析</button>
+    </div>
+  </div>
+
+  <div class="alert alert-warning d-none" id="fallback-box">
+    <strong>AI 无法解析，请手动填写。</strong>
+    <div class="small mt-1" id="fallback-reason"></div>
+    <a class="alert-link small" href="/groups/{{ group_id }}/">返回群组手动记一笔</a>
+  </div>
+
+  <div class="card d-none" id="draft-card">
+    <div class="card-header">解析结果（草稿，尚未落库）</div>
+    <div class="card-body">
+      <table class="table table-sm mb-3">
+        <tbody id="draft-body"></tbody>
+      </table>
+      <button class="btn btn-success" id="confirm-button" type="button">确认创建</button>
+      <span class="text-muted small ms-2">数字与分摊仍会经过后端的完整校验。</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/ai_parse.js' %}"></script>
+{% endblock %}
